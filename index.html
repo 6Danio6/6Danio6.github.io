@@ -1,1 +1,236 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>osu!goma</title>
+        <style>
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;  
+            }
+            .hidden {
+                display: none;
+            }
+            body {
+                font-size: 2em;
+            }
+            input {
+                font-size: 2rem;
+            }
+            input[type="number"] {
+                width: 1.5em;
+                text-align: center;
+                /* border-radius: 0.5em; */
+            }
+            input[type="range"] {
+                width: 15em;
+                /* margin: 10px 0; */
+            }
+            label[for*="in"], input[id*="in"]{
+                color: green;
+            }
+            * {
+                margin: 0.3em;
+            }
+            #errors {
+                color: red;
+                font-size: 0.5em;
+            }
+        </style>
+    </head>
+    <body>
+        <label for="fileupload">Upload .osu file:</label>
+        <input type="file" id="fileupload" onchange="readfile()">
+        <div id="section"> <!-- class="hidden"> -->
+            <label for="hpin" id="hplabel">HP</label> <input type="number" id="hpin" oninput="sync(this,hpsl)">
+            <input type="range" id="hpsl" oninput="sync(this,hpin)"> <input type="button" id="hpreset" value="Reset" onclick="reset(hpin,hpsl,hp)"> <br>
 
+            <label for="csin" id="cslabel">CS</label> <input type="number" id="csin" oninput="sync(this,cssl)">
+            <input type="range" id="cssl" oninput="sync(this,csin)"> <input type="button" id="csreset" value="Reset" onclick="reset(csin,cssl,cs)"> <br>
+
+            <label for="odin" id="odlabel">OD</label> <input type="number" id="odin" oninput="sync(this,odsl)">
+            <input type="range" id="odsl" oninput="sync(this,odin)"> <input type="button" id="odreset" value="Reset" onclick="reset(odin,odsl,od)"> <br>
+
+            <label for="arin" id="arlabel">AR</label> <input type="number" id="arin" oninput="sync(this,arsl)">
+            <input type="range" id="arsl" oninput="sync(this,arin)"> <input type="button" id="arreset" value="Reset" onclick="reset(arin,arsl,ar)"> <br>
+
+            
+
+            <label for="randomi">Randomize circles (in osupixel units)</label> <input type="number" id="randomi" min="0" oninput="sync(this,randoms)" value="0">  <br>
+            <input type="range" id="randoms" min="0" max="50" value="0" list="datalist2" oninput="sync(this,randomi)"><br>
+
+            <input type="button" id="allreset" value="Reset All" onclick="resetall()"> <br>
+
+            <input type="button" value="Save" onclick="savefile()">
+            
+            <p id="errors"></p>
+
+            <datalist id="datalist1"></datalist>
+            <datalist id="datalist2"></datalist>
+        </div>
+        <script>
+            // Add input functionality
+            const ins = document.querySelectorAll("input[id*='in']");
+            const sls = document.querySelectorAll("input[id*='sl']");
+            for (inp of ins){
+                inp.setAttribute("min", 0)
+                inp.setAttribute("max", 10)
+                inp.setAttribute("step", 0.1)
+                inp.setAttribute("value", 0)
+                inp.setAttribute("onclick", "select()")
+                inp.setAttribute("oninput", inp.getAttribute("oninput") + "\nif ( this.value>10 ) this.value=10; else if ( this.value<0 ) this.value=0; else if ( this.value=='' ) this.value='';")
+            }
+            for (sl of sls){
+                sl.setAttribute("min", 0)
+                sl.setAttribute("max", 10)
+                sl.setAttribute("step", 0.1)
+                sl.setAttribute("value", 0)
+                sl.setAttribute("list", "datalist1")
+            }
+
+
+            // Create datalists
+            for (let i=0;i<=10;i+=1) {
+                opt = document.createElement("option");
+                opt.setAttribute("value", i)
+                datalist1.appendChild(opt)
+            }
+            for (let i=0;i<=50;i+=10) {
+                opt = document.createElement("option");
+                opt.setAttribute("value", i)
+                datalist2.appendChild(opt)
+            }
+
+            // Filereader
+            let filereader = new FileReader();
+            let content, hp=0, cs=0, od=0, ar=0;
+            filereader.addEventListener("loadend", () => {
+                section.classList.remove("hidden")
+                content = filereader.result.split("\n")
+                console.log("Contents of your file:")
+                console.log(filereader.result)
+
+                // Remove \r from the end of every row
+                let i = 0;
+                while (i < content.length - 1) {
+                    content[i] = content[i].slice(0,-1);
+                    i++;
+                }
+
+                // Set input values
+                i = 0;
+                while (content[i].search(/\[Difficulty\]/) == -1){
+                    i = i + 1;
+                }
+                hp = parseInt(content[i+1].slice(12));
+                cs = parseInt(content[i+2].slice(11));
+                od = parseInt(content[i+3].slice(18));
+                ar = parseInt(content[i+4].slice(13));
+                hpin.value = hp;
+                csin.value = cs;
+                odin.value = od;
+                arin.value = ar;
+                hpsl.value = hp;
+                cssl.value = cs;
+                odsl.value = od;
+                arsl.value = ar;
+                // HPDrainRate:12
+                // CircleSize:11
+                // OverallDifficulty:18
+                // ApproachRate:13
+            })
+
+            function readfile()
+            {
+                console.log("File uploaded: ")
+                console.log(fileupload.files[0])
+                filereader.readAsText(fileupload.files[0])
+            }
+            function savefile()
+            {
+                try {
+                    // Create the diffname appendix
+                    let appendix = "";
+                    if (randomi.value != 0) appendix += " RANDOM" + randomi.value;
+                    if (hpin.value != hp) appendix += " HP" + hpin.value;
+                    if (csin.value != cs) appendix += " CS" + csin.value;
+                    if (odin.value != od) appendix += " OD" + odin.value;
+                    if (arin.value != ar) appendix += " AR" + arin.value;
+
+                    // Find the map's diffname and add the appendix
+                    let i = 0;
+                    while (content[i].search("Version:") == -1){
+                        i++
+                    }
+                    content[i] += appendix;
+                    
+                    // Randomize the circles
+                    i = 0;
+                    while (content[i].search(/\[HitObjects\]/) == -1){
+                        i = i + 1;
+                    }
+                    i++;
+                    while (i < content.length - 1) {
+                        let j = 0;
+                        while (content[i][j] != ','){
+                            j++;
+                        }
+                        let comma1 = j;
+                        j++;
+                        while (content[i][j] != ','){
+                            j++;
+                        }
+                        
+                        let x = Number(content[i].slice(0,comma1));
+                        let y = Number(content[i].slice(comma1+1,j));
+                        x += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
+                        y += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
+                        content[i] = x.toString() + "," + y.toString() + content[i].slice(j);
+                        i++;
+                    }
+
+                    // Prepare the download
+                    let link = document.createElement("a");
+                    let filename = fileupload.files[0].name.slice(0,-5) + appendix + "].osu";
+                    let result = content.join("\n");
+                    link.download = filename;
+                    link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(result);
+                    link.click();
+                } catch(err) {
+                    errors.innerHTML = "wow you broke something and its your fault ("+err.message+")";
+                }
+            }
+            function sync(inp1,inp2)
+            {
+                inp2.value = inp1.value
+                if (hpin.value == hp) { hplabel.style.color = "green"; hpin.style.color = "green"; } else { hplabel.style.color = "orange"; hpin.style.color = "orange" };
+                if (csin.value == cs) { cslabel.style.color = "green"; csin.style.color = "green"; } else { cslabel.style.color = "orange"; csin.style.color = "orange" };
+                if (odin.value == od) { odlabel.style.color = "green"; odin.style.color = "green"; } else { odlabel.style.color = "orange"; odin.style.color = "orange" };
+                if (arin.value == ar) { arlabel.style.color = "green"; arin.style.color = "green"; } else { arlabel.style.color = "orange"; arin.style.color = "orange" };
+            }
+            function reset(inp1, inp2, stat)
+            {
+                inp1.value = stat;
+                sync(inp1, inp2)
+            }
+            function resetall()
+            {
+                hpin.value = hp;
+                csin.value = cs;
+                odin.value = od;
+                arin.value = ar;
+                hpsl.value = hp;
+                cssl.value = cs;
+                odsl.value = od;
+                arsl.value = ar;
+                randomi.value = 0;
+                randoms.value = 0;
+                elems = document.querySelectorAll("[id*='label'],[id*='in']");
+                for (elem of elems){
+                    elem.removeAttribute("style")
+                }
+            }
+        </script>
+    </body>
+</html>
