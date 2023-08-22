@@ -4,6 +4,24 @@
         <meta charset="UTF-8">
         <title>osu!goma</title>
         <style>
+            @media screen and (orientation: landscape){
+                main {
+                    width: 100vh;
+                    height: 100vh;
+                }
+                html {
+                    font-size: 1.6vh;
+                }
+            }
+            @media screen and (orientation: portrait){
+                main {
+                    width: 100vw;
+                    height: 100vw;
+                }
+                html {
+                    font-size: 1.6vw;
+                }
+            }
             input::-webkit-outer-spin-button,
             input::-webkit-inner-spin-button {
                 -webkit-appearance: none;
@@ -12,68 +30,202 @@
             .hidden {
                 display: none;
             }
+            * {
+                box-sizing: border-box;
+            }
             body {
-                font-size: 2em;
+                margin: 0;
+                padding: 0;
+            }
+            main {
+                margin: 0;
+                padding: 2%; /* 4 */
+                gap: 2%; /* 6 x 18 */
+                display: grid; /* 10 x 22 */
+                grid-template-columns: min-content 10% auto 15%; /* 10 */
+                grid-template-rows: 10% 5% 5% 5% 5% 5% 5% 10% 10% auto; /* 22 */
+                font-size: 200%;
+            }
+            #miscellaneus {
+                grid-column: span 4;
+                margin: 0;
+                padding: 0;
+                gap: 2%;
+                display: grid;
+                grid-template-columns: 49% auto 15%;
+                grid-template-rows: 100%;
+            }
+            #info {
+                font-size: 60%;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            #info > p {
+                margin: 1%;
+                margin-left: 4%;
+            }
+            #changepitch {
+                font-size: 100%;
+                display: flex;
+                /* flex-direction: column; */
+                justify-content: center;
+                align-items: center;
+            }
+            #info, #changepitch {
+                border: 2px dotted lightgray;
+            }
+            #pitchin {
+                margin-left: 5%;
+                width: 15%;
+                height: 100%;
+            }
+            #resetall {
+                grid-column: span 1;
+            }
+            input[id*="reset"] {
+                font-size: 80%;
             }
             input {
-                font-size: 2rem;
+                font-size: 100%;
             }
             input[type="number"] {
-                width: 1.5em;
+                width: 100%;
                 text-align: center;
-                /* border-radius: 0.5em; */
+                /* border-radius: 9999px; */
+                /* border: 1px solid gray; */
             }
-            input[type="range"] {
-                width: 15em;
-                /* margin: 10px 0; */
+            input[type="file"] {
+                display: none;
             }
-            label[for*="in"], input[id*="in"]{
+            label {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #uploads > label {
+                /* cursor: pointer; */
+                border: 1px solid gray;
+                background-color: #efefef;
+                /* border-radius: 9999px; */
+                /* grid-column: span 2; */
+            }
+            #uploads > label:hover { background-color: #e5e5e5; }
+            #uploads > label:active { background-color: #f5f5f5; }
+            label[id*="label"]{
                 color: green;
+                display: flex;
+                justify-content: flex-end;
             }
-            * {
-                margin: 0.3em;
+            .numbers {
+                color: green;
+                border: 2px dotted lightgray;
             }
-            #errors {
+            .numbers:hover {
+                border: 1px solid gray;
+            }
+            .numbers:focus {
+                /* border: 1px solid gray; */
+                outline: 0;
+            }
+            input {
+                padding: 0;
+                /* border: 0; */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #uploads, #downloads {
+                grid-column: span 4;
+                display: grid;
+                grid-template-columns: 49% 49%;
+                gap: 2%;
+            }
+            #logs {
+                font-size: 60%;
+                grid-column: span 4;
+            }
+            #logs > * {
+                margin: 0;
+            }
+            .error {
                 color: red;
-                font-size: 0.5em;
+            }
+            .log {
+                color: blue;
             }
         </style>
     </head>
     <body>
-        <label for="fileupload">Upload .osu file:</label>
-        <input type="file" id="fileupload" onchange="readfile()">
-        <div id="section"> <!-- class="hidden"> -->
-            <label for="hpin" id="hplabel">HP</label> <input type="number" id="hpin" oninput="sync(this,hpsl)">
-            <input type="range" id="hpsl" oninput="sync(this,hpin)"> <input type="button" id="hpreset" value="Reset" onclick="reset(hpin,hpsl,hp)"> <br>
+        <main id="main">
+            <section id="uploads">
+                <label for="fileupload">Upload .osu file</label>
+                <input type="file" id="fileupload" class="numbers" accept=".osu" onchange="readfile()">
+                <label for="audioupload">Upload audio file</label>
+                <input type="file" id="audioupload" accept=".mp3,.ogg" onchange="readaudio()">
+            </section>
 
-            <label for="csin" id="cslabel">CS</label> <input type="number" id="csin" oninput="sync(this,cssl)">
-            <input type="range" id="cssl" oninput="sync(this,csin)"> <input type="button" id="csreset" value="Reset" onclick="reset(csin,cssl,cs)"> <br>
+            <label for="hpin" id="hplabel">HP</label>
+            <input type="number" id="hpin" class="numbers" oninput="sync(this,hpsl)" onblur="sync(hpsl,this)">
+            <input type="range" id="hpsl" oninput="sync(this,hpin)">
+            <input type="button" id="hpreset" value="Reset" onclick="reset(hpin,hpsl,hp)">
 
-            <label for="odin" id="odlabel">OD</label> <input type="number" id="odin" oninput="sync(this,odsl)">
-            <input type="range" id="odsl" oninput="sync(this,odin)"> <input type="button" id="odreset" value="Reset" onclick="reset(odin,odsl,od)"> <br>
+            <label for="csin" id="cslabel">CS</label>
+            <input type="number" id="csin" class="numbers" oninput="sync(this,cssl)" onblur="sync(cssl,this)">
+            <input type="range" id="cssl" oninput="sync(this,csin)">
+            <input type="button" id="csreset" value="Reset" onclick="reset(csin,cssl,cs)">
 
-            <label for="arin" id="arlabel">AR</label> <input type="number" id="arin" oninput="sync(this,arsl)">
-            <input type="range" id="arsl" oninput="sync(this,arin)"> <input type="button" id="arreset" value="Reset" onclick="reset(arin,arsl,ar)"> <br>
+            <label for="odin" id="odlabel">OD</label>
+            <input type="number" id="odin" class="numbers" oninput="sync(this,odsl)" onblur="sync(odl,this)">
+            <input type="range" id="odsl" oninput="sync(this,odin)">
+            <input type="button" id="odreset" value="Reset" onclick="reset(odin,odsl,od)">
 
+            <label for="arin" id="arlabel">AR</label>
+            <input type="number" id="arin" class="numbers" oninput="sync(this,arsl)" onblur="sync(arl,this)">
+            <input type="range" id="arsl" oninput="sync(this,arin)">
+            <input type="button" id="arreset" value="Reset" onclick="reset(arin,arsl,ar)">
+
+            <label for="ratei" id="ratelabel">Rate</label>
+            <input type="number" id="ratei" class="numbers" min="0.5" max="2" step="0.01" value="1.00" oninput="sync(this,rates)" onblur="sync(rates,this)">
+            <input type="range" id="rates" min="0.5" max="2" step="0.01" value="1.00" list="datalist2" oninput="sync(this,ratei)">
+            <input type="button" id="ratereset" value="Reset" onclick="reset(ratei,rates,1)">
+
+            <label for="randomi" id="randomlabel">Random</label>
+            <input type="number" id="randomi" class="numbers" min="0" value="0" oninput="sync(this,randoms)" onblur="sync(randoms,this)">
+            <input type="range" id="randoms" min="0" max="50" value="0" list="datalist3" oninput="sync(this,randomi)">
+            <input type="button" id="randomreset" value="Reset" onclick="reset(randomi,randoms,0)">
+
+            <section id="miscellaneus">
+                <section id="info">
+                    <p>Random - randomize circle positions (osupixel units)</p>
+                    <p>Rate - set beatmap & audio speed</p>
+                </section>
+                <div id="changepitch">
+                    <label for="pitchin">Change pitch</label>
+                    <input type="checkbox" id="pitchin">
+                </div>
+                <input type="button" id="resetall" value="Reset All" onclick="resetall()">
+            </section>
+
+            <section id="downloads">
+                <input type="button" value="Save .osu file" onclick="savefile()">
+                <input type="button" value="Save audio file" onclick="saveaudio()">
+            </section>
             
+            <section id="logs">
 
-            <label for="randomi">Randomize circles (in osupixel units)</label> <input type="number" id="randomi" min="0" oninput="sync(this,randoms)" value="0">  <br>
-            <input type="range" id="randoms" min="0" max="50" value="0" list="datalist2" oninput="sync(this,randomi)"><br>
-
-            <input type="button" id="allreset" value="Reset All" onclick="resetall()"> <br>
-
-            <input type="button" value="Save" onclick="savefile()">
-            
-            <p id="errors"></p>
-
-            <datalist id="datalist1"></datalist>
-            <datalist id="datalist2"></datalist>
-        </div>
+            </section>
+        </main>
+        <datalist id="datalist1"></datalist>
+        <datalist id="datalist2"></datalist>
+        <datalist id="datalist3"></datalist>
         <script>
             // Add input functionality
             const ins = document.querySelectorAll("input[id*='in']");
+            const ins2 = document.querySelectorAll("input[id='randomi'],input[id='ratei']");
             const sls = document.querySelectorAll("input[id*='sl']");
-            for (inp of ins){
+            for (inp of ins) {
                 inp.setAttribute("min", 0)
                 inp.setAttribute("max", 10)
                 inp.setAttribute("step", 0.1)
@@ -81,139 +233,430 @@
                 inp.setAttribute("onclick", "select()")
                 inp.setAttribute("oninput", inp.getAttribute("oninput") + "\nif ( this.value>10 ) this.value=10; else if ( this.value<0 ) this.value=0; else if ( this.value=='' ) this.value='';")
             }
-            for (sl of sls){
+            for (inp of ins2) {
+                inp.setAttribute("onclick", "select()")
+            }
+            for (sl of sls) {
                 sl.setAttribute("min", 0)
                 sl.setAttribute("max", 10)
                 sl.setAttribute("step", 0.1)
                 sl.setAttribute("value", 0)
                 sl.setAttribute("list", "datalist1")
             }
+            ratei.setAttribute("onblur", ratei.getAttribute("onblur") + "\nratei.value = Number(ratei.value).toFixed(2);")
+            rates.setAttribute("oninput", rates.getAttribute("oninput") + "\nratei.value = Number(ratei.value).toFixed(2);")
+            ratereset.setAttribute("onclick", ratereset.getAttribute("onclick") + "\nratei.value = Number(ratei.value).toFixed(2);")
 
 
             // Create datalists
-            for (let i=0;i<=10;i+=1) {
+            for (let i=0; i<=10; i+=1) {
                 opt = document.createElement("option");
                 opt.setAttribute("value", i)
                 datalist1.appendChild(opt)
             }
-            for (let i=0;i<=50;i+=10) {
+            for (let i=0.5; i<=2; i+=0.25) {
                 opt = document.createElement("option");
                 opt.setAttribute("value", i)
                 datalist2.appendChild(opt)
+            }for (let i=0; i<=50; i+=10) {
+                opt = document.createElement("option");
+                opt.setAttribute("value", i)
+                datalist3.appendChild(opt)
             }
 
             // Filereader
             let filereader = new FileReader();
-            let content, hp=0, cs=0, od=0, ar=0;
+            let content, hp=-1, cs=-1, od=-1, ar=-1, hp_pos = 0, cs_pos = 0, od_pos = 0, ar_pos = 0;
             filereader.addEventListener("loadend", () => {
-                section.classList.remove("hidden")
-                content = filereader.result.split("\n")
-                console.log("Contents of your file:")
-                console.log(filereader.result)
+                try {
+                    content = filereader.result.split("\n")
+                    console.log("Contents of your file:")
+                    console.log(filereader.result)
 
-                // Remove \r from the end of every row
-                let i = 0;
-                while (i < content.length - 1) {
-                    content[i] = content[i].slice(0,-1);
-                    i++;
-                }
+                    // Remove \r from the end of every row
+                    let i = 0;
+                    while (i < content.length - 1) {
+                        content[i] = content[i].slice(0,-1);
+                        i++;
+                    }
 
-                // Set input values
-                i = 0;
-                while (content[i].search(/\[Difficulty\]/) == -1){
-                    i = i + 1;
-                }
-                hp = parseInt(content[i+1].slice(12));
-                cs = parseInt(content[i+2].slice(11));
-                od = parseInt(content[i+3].slice(18));
-                ar = parseInt(content[i+4].slice(13));
-                hpin.value = hp;
-                csin.value = cs;
-                odin.value = od;
-                arin.value = ar;
-                hpsl.value = hp;
-                cssl.value = cs;
-                odsl.value = od;
-                arsl.value = ar;
-                // HPDrainRate:12
-                // CircleSize:11
-                // OverallDifficulty:18
-                // ApproachRate:13
+                    // Set input values
+                    i = 0;
+                    while (content[i].search(/\[Difficulty\]/) == -1){ 
+                        i = i + 1;
+                    }
+                    i+=7;
+                    for (j = i-6; j < i; j++) {
+                        if (content[j].search("HPDrainRate:") != -1) { hp = Number(content[j].slice(12)); hp_pos = j; }
+                        if (content[j].search("CircleSize:") != -1) { cs = Number(content[j].slice(11)); cs_pos = j; }
+                        if (content[j].search("OverallDifficulty:") != -1) { od = Number(content[j].slice(18)); od_pos = j; }
+                        if (content[j].search("ApproachRate:") != -1) { ar = Number(content[j].slice(13)); ar_pos = j; }
+                    }
+                    hpin.value = hp;
+                    csin.value = cs;
+                    odin.value = od;
+                    arin.value = ar;
+                    hpsl.value = hp;
+                    cssl.value = cs;
+                    odsl.value = od;
+                    arsl.value = ar;
+                    // HPDrainRate:12
+                    // CircleSize:11
+                    // OverallDifficulty:18
+                    // ApproachRate:13
+                } catch(err) { log("error", "Error reading file: ", err.message) }
             })
 
+            // FUNCTIONS
+
             function readfile()
-            {
-                console.log("File uploaded: ")
-                console.log(fileupload.files[0])
-                filereader.readAsText(fileupload.files[0])
+            {   
+                try {
+                    if (fileupload.files[0].size > 10485760) {
+                        this.value = "";
+                        throw new Error("File size limit exceeded (10MB). Try again.")
+                    }
+                    log("log", "File uploaded.")
+                    filereader.readAsText(fileupload.files[0])
+                } catch(err) { log("error", "Error reading file: ", err.message) }
             }
+
+            function readaudio()
+            {   
+                try {
+                    if (audioupload.files[0].size > 10485760) {
+                        this.value = "";
+                        throw new Error("File size limit exceeded (10MB). Try again.")
+                    }
+                    log("log", "Audio uploaded.")
+                } catch(err) { log("error", "Error reading file: ", err.message) }
+            }
+
             function savefile()
             {
                 try {
+                    if (fileupload.files.length == 0) throw new Error("No file uploaded.")
+                    if (content == undefined) throw new Error("No file data available.")
+                    log("log", "Writing changes...")
+                    output = [...content]
+                    let i = 0;
+
                     // Create the diffname appendix
                     let appendix = "";
+                    if (ratei.value != 1) appendix += ` ${ratei.value}x`;
                     if (randomi.value != 0) appendix += " RANDOM" + randomi.value;
                     if (hpin.value != hp) appendix += " HP" + hpin.value;
                     if (csin.value != cs) appendix += " CS" + csin.value;
                     if (odin.value != od) appendix += " OD" + odin.value;
                     if (arin.value != ar) appendix += " AR" + arin.value;
+                    if (pitchin.checked) appendix += " pitch";
 
-                    // Find the map's diffname and add the appendix
-                    let i = 0;
-                    while (content[i].search("Version:") == -1){
-                        i++
+                    // Find and change the map's audio filename
+                    if (ratei.value != 1) {
+                        while (output[i].search("AudioFilename:") == -1){
+                            i++;
+                        }
+                        if (pitchin.checked) {
+                            output[i] = output[i].slice(0,-4) + `_${ratei.value}x_pitch.mp3`;
+                        } else {
+                            output[i] = output[i].slice(0,-4) + `_${ratei.value}x.mp3`;
+                        }
                     }
-                    content[i] += appendix;
+
+                    // Find and change the map's diffname
+                    while (output[i].search("Version:") == -1){
+                        i++;
+                    }
+                    output[i] += appendix;
                     
-                    // Randomize the circles
-                    i = 0;
-                    while (content[i].search(/\[HitObjects\]/) == -1){
+                    // Find and change the map's BeatmapID
+                    while (output[i].search("BeatmapID:") == -1){
+                        i++;
+                    }
+                    output[i] = output[i].slice(0,10) + "0"
+
+                    // Find and change the map's difficulty values
+                    if (hp != -1) output[hp_pos] = output[hp_pos].slice(0,12) + hpin.value;
+                    if (cs != -1) output[cs_pos] = output[cs_pos].slice(0,11) + csin.value;
+                    if (od != -1) output[od_pos] = output[od_pos].slice(0,18) + odin.value;
+                    if (ar != -1) output[ar_pos] = output[ar_pos].slice(0,13) + arin.value;
+
+                    // Find and change the map's timing points
+                    while (output[i].search(/\[TimingPoints\]/) == -1){
                         i = i + 1;
                     }
                     i++;
-                    while (i < content.length - 1) {
+                    while (output[i].search(',') != -1) {
                         let j = 0;
-                        while (content[i][j] != ','){
+                        while (output[i][j] != ','){
                             j++;
                         }
                         let comma1 = j;
                         j++;
-                        while (content[i][j] != ','){
+                        while (output[i][j] != ','){
                             j++;
                         }
-                        
-                        let x = Number(content[i].slice(0,comma1));
-                        let y = Number(content[i].slice(comma1+1,j));
-                        x += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
-                        y += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
-                        content[i] = x.toString() + "," + y.toString() + content[i].slice(j);
+                        let comma2 = j;
+
+                        let time = output[i].slice(0, comma1)
+                        let speed = output[i].slice(comma1+1, comma2)
+                        time /= ratei.value;
+                        if (speed > 0) {
+                            speed /= ratei.value;
+                            output[i] = time.toString() + "," + speed.toString() + output[i].slice(comma2);
+                        } else {
+                            output[i] = time.toString() + output[i].slice(comma1);
+                        }
                         i++;
                     }
 
+                    // Find the hit objects for the next part
+                    while (output[i].search(/\[HitObjects\]/) == -1){
+                        i = i + 1;
+                    }
+                    i++;
+
+                    // Speed up AND randomize the circles
+                    if (ratei.value != 1 && randomi.value != 0) {
+                        while (output[i].search(",") != -1) {
+                            let j = 0;
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma1 = j;
+                            j++;
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma2 = j;
+                            j++;    
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma3 = j;
+                            j++;    
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma4 = j;
+
+                            let x = Number(output[i].slice(0, comma1));
+                            let y = Number(output[i].slice(comma1+1, comma2));
+                            let n = Number(output[i].slice(comma2+1, comma3));
+                            let type = Number(output[i].slice(comma3+1, comma4)).toString(2).slice(-4,-3)
+                            n /= ratei.value;
+                            x += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
+                            y += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
+                            if (type == 1) {
+                                j++;    
+                                while (output[i][j] != ','){
+                                    j++;
+                                }
+                                let comma5 = j;
+                                j++;    
+                                while (output[i][j] != ','){
+                                    j++;
+                                }
+                                let comma6 = j;
+
+                                let spin = content[i].slice(comma5+1, comma6);
+                                spin /= ratei.value;
+                                output[i] = x.toString() + "," + y.toString() + "," + n.toString() + output[i].slice(comma3, comma5+1) + spin.toString() + output[i].slice(comma6)
+                            } else {
+                                output[i] = x.toString() + "," + y.toString() + "," + n.toString() + output[i].slice(comma3);
+                            }
+                            i++;
+                        }
+                    }
+
+                    // Speed up the circles
+                    if (ratei.value != 1) {
+                        while (output[i].search(",") != -1) {
+                            let j = 0;
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            j++;
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma2 = j;
+                            j++;
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma3 = j;
+                            j++;    
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma4 = j;
+
+                            let n = Number(output[i].slice(comma2+1, comma3));
+                            let type = Number(output[i].slice(comma3+1, comma4)).toString(2).slice(-4,-3);
+                            n /= ratei.value;
+                            if (type == 1) {
+                                j++;    
+                                while (output[i][j] != ','){
+                                    j++;
+                                }
+                                let comma5 = j;
+                                j++;    
+                                while (output[i][j] != ','){
+                                    j++;
+                                }
+                                let comma6 = j;
+
+                                let spin = content[i].slice(comma5+1, comma6)
+                                spin /= ratei.value;
+                                output[i] = output[i].slice(0, comma2+1) + n.toString() + output[i].slice(comma3, comma5+1) + spin.toString() + output[i].slice(comma6);
+                            } else {
+                                output[i] = output[i].slice(0, comma2+1) + n.toString() + output[i].slice(comma3)
+                            }
+                            i++;
+                        }
+                    }
+
+                    // Randomize the circles
+                    if (randomi.value != 0) {
+                        while (output[i].search(",") != -1) {
+                            let j = 0;
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma1 = j;
+                            j++;
+                            while (output[i][j] != ','){
+                                j++;
+                            }
+                            let comma2 = j;
+                            let x = Number(output[i].slice(0, comma1));
+                            let y = Number(output[i].slice(comma1+1, comma2));
+                            x += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
+                            y += Math.floor(Math.random() * (randomi.value * 2 + 1)) - randomi.value;
+                            output[i] = x.toString() + "," + y.toString() + output[i].slice(comma2);
+                            i++;
+                        }
+                    }
+
+                    
                     // Prepare the download
                     let link = document.createElement("a");
-                    let filename = fileupload.files[0].name.slice(0,-5) + appendix + "].osu";
-                    let result = content.join("\n");
+                    let filename = fileupload.files[0].name.slice(0,-5) + `${appendix}].osu`;
+                    let result = output.join("\n");
                     link.download = filename;
                     link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(result);
                     link.click();
-                } catch(err) {
-                    errors.innerHTML = "wow you broke something and its your fault ("+err.message+")";
-                }
+                    log("log", "File saved.")
+                } catch(err) { log("error", "Error saving .osu file: ", err.message) }
             }
+
+            function saveaudio()
+            {
+                try {
+                    if (audioupload.files.length == 0) throw new Error("No file uploaded.")
+                    if (ratei.value == 1) throw new Error("Rate is set to 1. No need.")
+                    pitch = pitchin.checked; 
+                    rate = ratei.value;
+
+                    // Create a FormData object
+                    audiofile = audioupload.files[0]
+                    let formdata = new FormData();
+                    formdata.append('file', audiofile);
+
+                    // Create a POST XMLHttpRequest (audio file)
+                    let xhr = new XMLHttpRequest();
+                    let ratestring = rate.toString()
+                    let pitchstring = Number(pitch).toString()
+                    let url = `http://5.135.186.57:5000/upload?rate=${ratestring}&pitch=${pitchstring}`;
+                    xhr.open('POST', url, true)
+                    xhr.responseType = 'blob';
+
+                    // Create a GET XMLHttpRequest (stats)
+                    let stats = new XMLHttpRequest();
+                    stats.open("GET", "http://5.135.186.57:5000/stats", true)
+
+                    // xhr functions
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            log("log","Audio downloaded.")
+                            console.log(xhr.response);
+                            // console.log(xhr.responseURL);
+                            // console.log(xhr.responseType);
+                            let blob = xhr.response;
+                            let link = document.createElement("a");
+                            let filename;
+                            if (pitch) {
+                                filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x_pitch.mp3`;
+                            } else {
+                                filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x.mp3`;
+                            }
+                            link.href = window.URL.createObjectURL(blob);
+                            link.download = filename
+                            link.innerHTML = "Click to download"
+                            main.appendChild(link);
+                            link.click();
+                            main.removeChild(link);
+                            log("log","Audio saved.")
+                        } else {
+                            console.log(`Request failed: ${xhr.statusText}`);
+                            throw new Error(`Request failed: ${xhr.statusText}`)
+                        }
+                    };
+                    xhr.onerror = function() {
+                        console.log("XMLHTTPRequest error occured.");
+                        throw new Error("XMLHTTPRequest error occured.")
+                    };
+                    xhr.onprogress = function(event) {
+                        console.log(`Received ${event.loaded}B of ${event.total}B`);
+                        log("log",`Received ${event.loaded}B of ${event.total}B`)
+                    };
+
+                    // stats functions
+                    stats.onload = function(){
+                        if (stats.status === 200) {
+                            let data = JSON.parse(stats.responseText);
+
+                            let ratio = 1.5;
+                            let estimated_size = Math.round(audiofile.size / (ratei.value * ratio));
+                            log("log", `Estimated size: ${estimated_size}B`)
+
+                            estimated_time = estimated_size / data["average_bps"];
+                            estimated_time = estimated_time.toFixed(2);
+                            log("log", `Estimated wait time: ${estimated_time}s`)
+                        } else {
+                            throw new Error(`Request failed: ${stats.statusText}`)
+                        }
+                    }
+                    stats.onerror = function() {
+                        throw new Error("XMLHTTPRequest error occured.")
+                    };
+
+                    // Send the requests
+                    xhr.send(formdata);
+                    stats.send();
+                } catch(err) { log("error", "Error saving audio file: ", err.message) }
+            }
+
             function sync(inp1,inp2)
             {
-                inp2.value = inp1.value
-                if (hpin.value == hp) { hplabel.style.color = "green"; hpin.style.color = "green"; } else { hplabel.style.color = "orange"; hpin.style.color = "orange" };
-                if (csin.value == cs) { cslabel.style.color = "green"; csin.style.color = "green"; } else { cslabel.style.color = "orange"; csin.style.color = "orange" };
-                if (odin.value == od) { odlabel.style.color = "green"; odin.style.color = "green"; } else { odlabel.style.color = "orange"; odin.style.color = "orange" };
-                if (arin.value == ar) { arlabel.style.color = "green"; arin.style.color = "green"; } else { arlabel.style.color = "orange"; arin.style.color = "orange" };
+                if (inp1.value != "") inp2.value = inp1.value;
+                if (content != undefined) {
+                    if (hpin.value == hp) { hplabel.style.color = "green"; hpin.style.color = "green"; } else { hplabel.style.color = "orange"; hpin.style.color = "orange" };
+                    if (csin.value == cs) { cslabel.style.color = "green"; csin.style.color = "green"; } else { cslabel.style.color = "orange"; csin.style.color = "orange" };
+                    if (odin.value == od) { odlabel.style.color = "green"; odin.style.color = "green"; } else { odlabel.style.color = "orange"; odin.style.color = "orange" };
+                    if (arin.value == ar) { arlabel.style.color = "green"; arin.style.color = "green"; } else { arlabel.style.color = "orange"; arin.style.color = "orange" };
+                }
+                if (ratei.value == 1) { ratelabel.style.color = "green"; ratei.style.color = "green"; } else { ratelabel.style.color = "orange"; ratei.style.color = "orange" };
+                if (randomi.value == 0) { randomlabel.style.color = "green"; randomi.style.color = "green"; } else { randomlabel.style.color = "orange"; randomi.style.color = "orange" };
             }
+
             function reset(inp1, inp2, stat)
             {
                 inp1.value = stat;
                 sync(inp1, inp2)
             }
+
             function resetall()
             {
                 hpin.value = hp;
@@ -226,10 +669,19 @@
                 arsl.value = ar;
                 randomi.value = 0;
                 randoms.value = 0;
-                elems = document.querySelectorAll("[id*='label'],[id*='in']");
+                ratei.value = Number(1).toFixed(2);
+                rates.value = 1;
+                elems = document.querySelectorAll("[id*='label'],.numbers");
                 for (elem of elems){
                     elem.removeAttribute("style")
                 }
+            }
+
+            function log(type, message, err=""){
+                let e = document.createElement("p")
+                e.classList.add(type)
+                e.innerHTML = message + err;
+                logs.appendChild(e)
             }
         </script>
     </body>
