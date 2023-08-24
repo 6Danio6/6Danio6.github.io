@@ -3,7 +3,13 @@
     <head>
         <meta charset="UTF-8">
         <title>osu!goma</title>
+        <link rel="icon" href="assets/icons/favicon.ico">
         <style>
+            @font-face {
+                font-family: "Comfortaa";
+                src: url("assets/Comfortaa/Comfortaa-VariableFont_wght.ttf") format("truetype");
+                /* src: url("assets/Comfortaa/static/Comfortaa-Regular.ttf") format("truetype"); */
+            }
             @media screen and (orientation: landscape){
                 main {
                     width: 100vh;
@@ -36,6 +42,8 @@
             body {
                 margin: 0;
                 padding: 0;
+                display: flex;
+                justify-content: center;
             }
             main {
                 margin: 0;
@@ -46,6 +54,10 @@
                 grid-template-rows: 10% 5% 5% 5% 5% 5% 5% 10% 10% auto; /* 22 */
                 font-size: 200%;
             }
+            body, input {
+                font-family: 'Comfortaa';
+                font-size: 100%;
+            }
             #miscellaneus {
                 grid-column: span 4;
                 margin: 0;
@@ -54,16 +66,17 @@
                 display: grid;
                 grid-template-columns: 49% auto 15%;
                 grid-template-rows: 100%;
+                font-size: 78%;
             }
             #info {
                 font-size: 60%;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: space-evenly;
                 align-items: flex-start;
             }
             #info > p {
-                margin: 1%;
+                margin: 0%;
                 margin-left: 4%;
             }
             #changepitch {
@@ -87,14 +100,10 @@
             input[id*="reset"] {
                 font-size: 80%;
             }
-            input {
-                font-size: 100%;
-            }
             input[type="number"] {
                 width: 100%;
                 text-align: center;
-                /* border-radius: 9999px; */
-                /* border: 1px solid gray; */
+                font-family:Arial, Helvetica, sans-serif;
             }
             input[type="file"] {
                 display: none;
@@ -117,6 +126,8 @@
                 color: green;
                 display: flex;
                 justify-content: flex-end;
+                align-items: center;
+                font-weight: 400;
             }
             .numbers {
                 color: green;
@@ -198,8 +209,8 @@
 
             <section id="miscellaneus">
                 <section id="info">
-                    <p>Random - randomize circle positions (osupixel units)</p>
                     <p>Rate - set beatmap & audio speed</p>
+                    <p>Random - randomize circle positions (osupixel units)</p>
                 </section>
                 <div id="changepitch">
                     <label for="pitchin">Change pitch</label>
@@ -316,7 +327,7 @@
                         this.value = "";
                         throw new Error("File size limit exceeded (10MB). Try again.")
                     }
-                    log("log", "File uploaded.")
+                    log("log", `File uploaded: $${fileupload.files[0].name}`)
                     filereader.readAsText(fileupload.files[0])
                 } catch(err) { log("error", "Error reading file: ", err.message) }
             }
@@ -328,7 +339,7 @@
                         this.value = "";
                         throw new Error("File size limit exceeded (10MB). Try again.")
                     }
-                    log("log", "Audio uploaded.")
+                    log("log", `Audio uploaded: <b  >${audioupload.files[0].name}</b>`)
                 } catch(err) { log("error", "Error reading file: ", err.message) }
             }
 
