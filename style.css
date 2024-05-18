@@ -156,7 +156,8 @@ input {
 }
 
 #logs {
-    font-size: 60%;
+    font-size: 50%;
+    font-family: monospace;
     grid-column: span 4;
 }
 #logs > * {
