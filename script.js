@@ -1,37 +1,34 @@
-// const { fetchFile } = FFmpegUtil;
-// const { FFmpeg } = FFmpegWASM;
-// let ffmpeg = null;
+let ffmpeg = null;
+const trim = async ({ target: { files } }) => {
+const message = document.getElementById('message');
+if (ffmpeg === null) {
+    ffmpeg = new FFmpegWASM.FFmpeg();
+    ffmpeg.on("log", ({ message }) => {
+    console.log(message);
+    })
+    ffmpeg.on("progress", ({ progress }) => {
+    message.innerHTML = `${progress * 100} %`;
+    });
+    await ffmpeg.load({coreURL: "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js"});
+}
+const { name } = files[0];
+await ffmpeg.writeFile(name, await FFmpegUtil.fetchFile(files[0]));
+message.innerHTML = 'Start trimming';
+await ffmpeg.exec(['-i', name, '-ss', '0', '-to', '1', 'output.mp4']);
+message.innerHTML = 'Complete trimming';
+const data = await ffmpeg.readFile('output.mp4');
 
-//       const trim = async ({ target: { files } }) => {
-//         const message = document.getElementById('message');
-//         if (ffmpeg === null) {
-//           ffmpeg = new FFmpeg();
-//           ffmpeg.on("log", ({ message }) => {
-//             console.log(message);
-//           })
-//           ffmpeg.on("progress", ({ progress }) => {
-//             message.innerHTML = `${progress * 100} %`;
-//           });
-//           await ffmpeg.load();
-//         }
-//         const { name } = files[0];
-//         await ffmpeg.writeFile(name, await fetchFile(files[0]));
-//         message.innerHTML = 'Start trimming';
-//         await ffmpeg.exec(['-i', name, '-ss', '0', '-to', '1', 'output.mp4']);
-//         message.innerHTML = 'Complete trimming';
-//         const data = await ffmpeg.readFile('output.mp4');
-
-//         const video = document.getElementById('output-video');
-//         video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
-//       }
-//       const elm = document.getElementById('uploader');
-//       elm.addEventListener('change', trim);
+const video = document.getElementById('output-video');
+video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+}
+const elm = document.getElementById('uploader');
+elm.addEventListener('change', trim);
 
 // Add input functionality
 const ins = document.querySelectorAll("input[id*='in']");
 const ins2 = document.querySelectorAll("input[id='randomi'],input[id='ratei']");
 const sls = document.querySelectorAll("input[id*='sl']");
-for (inp of ins) {
+for (let inp of ins) {
     inp.setAttribute("min", 0)
     inp.setAttribute("max", 10)
     inp.setAttribute("step", 0.1)
@@ -39,10 +36,10 @@ for (inp of ins) {
     inp.setAttribute("onclick", "select()")
     inp.setAttribute("oninput", inp.getAttribute("oninput") + "\nif ( this.value>10 ) this.value=10; else if ( this.value<0 ) this.value=0; else if ( this.value=='' ) this.value='';")
 }
-for (inp of ins2) {
+for (let inp of ins2) {
     inp.setAttribute("onclick", "select()")
 }
-for (sl of sls) {
+for (let sl of sls) {
     sl.setAttribute("min", 0)
     sl.setAttribute("max", 10)
     sl.setAttribute("step", 0.1)
@@ -56,16 +53,16 @@ ratereset.setAttribute("onclick", ratereset.getAttribute("onclick") + "\nratei.v
 
 // Create datalists
 for (let i=0; i<=10; i+=1) {
-    opt = document.createElement("option");
+    let opt = document.createElement("option");
     opt.setAttribute("value", i)
     datalist1.appendChild(opt)
 }
 for (let i=0.5; i<=2; i+=0.25) {
-    opt = document.createElement("option");
+    let opt = document.createElement("option");
     opt.setAttribute("value", i)
     datalist2.appendChild(opt)
 }for (let i=0; i<=50; i+=10) {
-    opt = document.createElement("option");
+    let opt = document.createElement("option");
     opt.setAttribute("value", i)
     datalist3.appendChild(opt)
 }
