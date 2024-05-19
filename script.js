@@ -1,43 +1,26 @@
 let ffmpeg = null;
-const trim = async ({ target: { files } }) => {
-const message = document.getElementById('message');
-if (ffmpeg === null) {
-    ffmpeg = new FFmpegWASM.FFmpeg();
-    ffmpeg.on("log", ({ message }) => {
-    console.log(message);
-    })
-    ffmpeg.on("progress", ({ progress }) => {
-    message.innerHTML = `${progress * 100} %`;
-    });
-    await ffmpeg.load({coreURL: "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js"});
-}
-const { name } = files[0];
-await ffmpeg.writeFile(name, await FFmpegUtil.fetchFile(files[0]));
-message.innerHTML = 'Start trimming';
-await ffmpeg.exec(['-i', name, '-ss', '0', '-to', '1', 'output.mp4']);
-message.innerHTML = 'Complete trimming';
-const data = await ffmpeg.readFile('output.mp4');
 
-const video = document.getElementById('output-video');
-video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
-}
-const elm = document.getElementById('uploader');
-elm.addEventListener('change', trim);
+fileupload.onchange = readfile;
+audioupload.onchange = readaudio;
+save_osu_file_button.onclick = savefile;
+save_audio_file_button.onclick = saveaudio;
 
 // Add input functionality
 const ins = document.querySelectorAll("input[id*='in']");
 const ins2 = document.querySelectorAll("input[id='randomi'],input[id='ratei']");
 const sls = document.querySelectorAll("input[id*='sl']");
 for (let inp of ins) {
-    inp.setAttribute("min", 0)
-    inp.setAttribute("max", 10)
-    inp.setAttribute("step", 0.1)
-    inp.setAttribute("value", 0)
-    inp.setAttribute("onclick", "select()")
-    inp.setAttribute("oninput", inp.getAttribute("oninput") + "\nif ( this.value>10 ) this.value=10; else if ( this.value<0 ) this.value=0; else if ( this.value=='' ) this.value='';")
+    inp.setAttribute("min", 0);
+    inp.setAttribute("max", 10);
+    inp.setAttribute("step", 0.1);
+    inp.setAttribute("value", 0);
+    inp.setAttribute("onclick", "select()");
+    // inp.setAttribute("oninput", inp.getAttribute("oninput") + "\nif ( this.value>10 ) this.value=10; else if ( this.value<0 ) this.value=0; else if ( this.value=='' ) this.value='';");
+    inp.setAttribute("oninput", `sync(this, ${inp.id.slice(0,2) + 'sl'}) \nif ( this.value>10 ) this.value=10; else if ( this.value<0 ) this.value=0; else if ( this.value=='' ) this.value='';`);
 }
 for (let inp of ins2) {
-    inp.setAttribute("onclick", "select()")
+    inp.setAttribute("onclick", "select()");
+    inp.setAttribute("oninput", `sync(this, ${inp.id.slice(0,-1) + 's'})`);
 }
 for (let sl of sls) {
     sl.setAttribute("min", 0)
@@ -117,7 +100,7 @@ function readfile()
     try {
         if (fileupload.files[0].size > 10485760) {
             this.value = "";
-            throw new Error("File size limit exceeded (10MB). Try again.")
+            throw new Error("File size limit exceeded (10MB)!")
         }
         log("log", `File uploaded: $${fileupload.files[0].name}`)
         filereader.readAsText(fileupload.files[0])
@@ -129,7 +112,7 @@ function readaudio()
     try {
         if (audioupload.files[0].size > 10485760) {
             this.value = "";
-            throw new Error("File size limit exceeded (10MB). Try again.")
+            throw new Error("File size limit exceeded (10MB)!")
         }
         log("log", `Audio uploaded: <b  >${audioupload.files[0].name}</b>`)
     } catch(err) { log("error", "Error reading file: ", err.message) }
@@ -354,92 +337,53 @@ function savefile()
     } catch(err) { log("error", "Error saving .osu file: ", err.message) }
 }
 
-function saveaudio()
+async function saveaudio()
 {
     try {
         if (audioupload.files.length == 0) throw new Error("No file uploaded.")
         if (ratei.value == 1) throw new Error("Rate is set to 1. No need.")
-        pitch = pitchin.checked; 
-        rate = ratei.value;
+        let pitch = pitchin.checked; 
+        let rate = ratei.value;
+        let filename = audioupload.files[0].name;
+        let outputname;
+        
+        // FFmpeg
+        if (ffmpeg === null) {
+            ffmpeg = new FFmpegWASM.FFmpeg();
 
-        // FFMPEG WASM TEST
+            ffmpeg.on("log", ({ message }) => {
+                console.log(message);
+            })
 
-        // // Create a FormData object
-        // audiofile = audioupload.files[0]
-        // let formdata = new FormData();
-        // formdata.append('file', audiofile);
+            ffmpeg.on("progress", ({ progress }) => {
+                log("log", `${progress * 100} %`);
+            });
 
-        // // Create a POST XMLHttpRequest (audio file)
-        // let xhr = new XMLHttpRequest();
-        // let ratestring = rate.toString()
-        // let pitchstring = Number(pitch).toString()
-        // let url = `http://x/upload?rate=${ratestring}&pitch=${pitchstring}`;
-        // xhr.open('POST', url, true)
-        // xhr.responseType = 'blob';
+            await ffmpeg.load({coreURL: "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js"});
+        }
 
-        // // Create a GET XMLHttpRequest (stats)
-        // let stats = new XMLHttpRequest();
-        // stats.open("GET", "http://x/stats", true)
-
-        // // xhr functions
-        // xhr.onload = function() {
-        //     if (xhr.status === 200) {
-        //         log("log","Audio downloaded.")
-        //         console.log(xhr.response);
-        //         // console.log(xhr.responseURL);
-        //         // console.log(xhr.responseType);
-        //         let blob = xhr.response;
-        //         let link = document.createElement("a");
-        //         let filename;
-        //         if (pitch) {
-        //             filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x_pitch.mp3`;
-        //         } else {
-        //             filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x.mp3`;
-        //         }
-        //         link.href = window.URL.createObjectURL(blob);
-        //         link.download = filename
-        //         link.innerHTML = "Click to download"
-        //         main.appendChild(link);
-        //         link.click();
-        //         main.removeChild(link);
-        //         log("log","Audio saved.")
-        //     } else {
-        //         console.log(`Request failed: ${xhr.statusText}`);
-        //         throw new Error(`Request failed: ${xhr.statusText}`)
-        //     }
-        // };
-        // xhr.onerror = function() {
-        //     console.log("XMLHTTPRequest error occured.");
-        //     throw new Error("XMLHTTPRequest error occured.")
-        // };
-        // xhr.onprogress = function(event) {
-        //     console.log(`Received ${event.loaded}B of ${event.total}B`);
-        //     log("log",`Received ${event.loaded}B of ${event.total}B`)
-        // };
-
-        // // stats functions
-        // stats.onload = function(){
-        //     if (stats.status === 200) {
-        //         let data = JSON.parse(stats.responseText);
-
-        //         let ratio = 1.5;
-        //         let estimated_size = Math.round(audiofile.size / (ratei.value * ratio));
-        //         log("log", `Estimated size: ${estimated_size}B`)
-
-        //         estimated_time = estimated_size / data["average_bps"];
-        //         estimated_time = estimated_time.toFixed(2);
-        //         log("log", `Estimated wait time: ${estimated_time}s`)
-        //     } else {
-        //         throw new Error(`Request failed: ${stats.statusText}`)
-        //     }
-        // }
-        // stats.onerror = function() {
-        //     throw new Error("XMLHTTPRequest error occured.")
-        // };
-
-        // // Send the requests
-        // xhr.send(formdata);
-        // stats.send();
+        await ffmpeg.writeFile(filename, await FFmpegUtil.fetchFile(audioupload.files[0]));
+        log('log', 'Start audio conversion.');
+        if ( pitch )
+        {
+            outputname = filename.slice(0,-4) + `_${ratei.value}x_pitch.mp3`;
+            await ffmpeg.exec(['-i', filename, '-af', `asetrate=${44100 * rate}`, outputname]);
+        }
+        else
+        {
+            outputname = filename.slice(0,-4) + `_${ratei.value}x.mp3`;
+            await ffmpeg.exec(['-i', filename, '-af', `atempo=${rate}`, outputname]);
+        }
+        log('log', 'Complete audio conversion.');
+        let data = await ffmpeg.readFile(outputname);
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([data.buffer], { type: 'audio/mpeg' }));
+        link.download = outputname;
+        link.innerHTML = "Click to download";
+        main.appendChild(link);
+        link.click();
+        main.removeChild(link);
+        log("log","Audio saved.");
     } catch(err) { log("error", "Error saving audio file: ", err.message) }
 }
 

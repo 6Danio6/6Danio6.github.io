@@ -15,39 +15,39 @@
         <main id="main">
             <section id="uploads">
                 <label for="fileupload">Upload .osu file</label>
-                <input type="file" id="fileupload" class="numbers" accept=".osu" onchange="readfile()">
+                <input type="file" id="fileupload" class="numbers" accept=".osu">
                 <label for="audioupload">Upload audio file</label>
-                <input type="file" id="audioupload" accept=".mp3,.ogg" onchange="readaudio()">
+                <input type="file" id="audioupload" accept=".mp3,.ogg">
             </section>
 
             <label for="hpin" id="hplabel">HP</label>
-            <input type="number" id="hpin" class="numbers" oninput="sync(this,hpsl)" onblur="sync(hpsl,this)">
-            <input type="range" id="hpsl" oninput="sync(this,hpin)">
+            <input type="number" id="hpin" class="numbers" onblur="sync(hpsl,this)">
+            <input type="range" id="hpsl">
             <input type="button" id="hpreset" value="Reset" onclick="reset(hpin,hpsl,hp)">
 
             <label for="csin" id="cslabel">CS</label>
-            <input type="number" id="csin" class="numbers" oninput="sync(this,cssl)" onblur="sync(cssl,this)">
-            <input type="range" id="cssl" oninput="sync(this,csin)">
+            <input type="number" id="csin" class="numbers" onblur="sync(cssl,this)">
+            <input type="range" id="cssl">
             <input type="button" id="csreset" value="Reset" onclick="reset(csin,cssl,cs)">
 
             <label for="odin" id="odlabel">OD</label>
-            <input type="number" id="odin" class="numbers" oninput="sync(this,odsl)" onblur="sync(odsl,this)">
-            <input type="range" id="odsl" oninput="sync(this,odin)">
+            <input type="number" id="odin" class="numbers" onblur="sync(odsl,this)">
+            <input type="range" id="odsl">
             <input type="button" id="odreset" value="Reset" onclick="reset(odin,odsl,od)">
 
             <label for="arin" id="arlabel">AR</label>
-            <input type="number" id="arin" class="numbers" oninput="sync(this,arsl)" onblur="sync(arsl,this)">
-            <input type="range" id="arsl" oninput="sync(this,arin)">
+            <input type="number" id="arin" class="numbers" onblur="sync(arsl,this)">
+            <input type="range" id="arsl">
             <input type="button" id="arreset" value="Reset" onclick="reset(arin,arsl,ar)">
 
             <label for="ratei" id="ratelabel">Rate</label>
-            <input type="number" id="ratei" class="numbers" min="0.5" max="2" step="0.01" value="1.00" oninput="sync(this,rates)" onblur="sync(rates,this)">
-            <input type="range" id="rates" min="0.5" max="2" step="0.01" value="1.00" list="datalist2" oninput="sync(this,ratei)">
+            <input type="number" id="ratei" class="numbers" min="0.5" max="2" step="0.01" value="1.00" onblur="sync(rates,this)">
+            <input type="range" id="rates" min="0.5" max="2" step="0.01" value="1.00" list="datalist2">
             <input type="button" id="ratereset" value="Reset" onclick="reset(ratei,rates,1)">
 
             <label for="randomi" id="randomlabel">Random</label>
-            <input type="number" id="randomi" class="numbers" min="0" value="0" oninput="sync(this,randoms)" onblur="sync(randoms,this)">
-            <input type="range" id="randoms" min="0" max="50" value="0" list="datalist3" oninput="sync(this,randomi)">
+            <input type="number" id="randomi" class="numbers" min="0" value="0" onblur="sync(randoms,this)">
+            <input type="range" id="randoms" min="0" max="50" value="0" list="datalist3">
             <input type="button" id="randomreset" value="Reset" onclick="reset(randomi,randoms,0)">
 
             <section id="miscellaneus">
@@ -63,21 +63,9 @@
             </section>
 
             <section id="downloads">
-                <input type="button" value="Save .osu file" onclick="savefile()">
-                <input type="button" value="Save audio file" onclick="saveaudio()">
+                <input id="save_osu_file_button" type="button" value="Save .osu file">
+                <input id="save_audio_file_button" type="button" value="Save audio file">
             </section>
-            
-            <!-- tests -->
-            <video id="output-video" controls></video>
-            <label> xd
-                <input type="file" id="uploader">
-            </label>
-            <p id="message"></p>
-
-            <section id="logs">
-
-            </section>
-            <!-- tests -->
 
             <section id="logs">
 
@@ -89,6 +77,6 @@
         <script type="module" src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
         <script type="module" src="https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js"></script>
         <script type="module" src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
-        <script type="module" src="https://6danio6.github.io/script.js"></script>
+        <script type="module" src="http://6danio6.github.io/script.js"></script>
     </body>
 </html>

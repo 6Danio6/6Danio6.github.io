@@ -159,6 +159,9 @@ input {
     font-size: 50%;
     font-family: monospace;
     grid-column: span 4;
+    display: flex;
+    flex-direction: column-reverse;
+    overflow: auto;
 }
 #logs > * {
     margin: 0;
