@@ -1,4 +1,31 @@
+// const { fetchFile } = FFmpegUtil;
+// const { FFmpeg } = FFmpegWASM;
+// let ffmpeg = null;
 
+//       const trim = async ({ target: { files } }) => {
+//         const message = document.getElementById('message');
+//         if (ffmpeg === null) {
+//           ffmpeg = new FFmpeg();
+//           ffmpeg.on("log", ({ message }) => {
+//             console.log(message);
+//           })
+//           ffmpeg.on("progress", ({ progress }) => {
+//             message.innerHTML = `${progress * 100} %`;
+//           });
+//           await ffmpeg.load();
+//         }
+//         const { name } = files[0];
+//         await ffmpeg.writeFile(name, await fetchFile(files[0]));
+//         message.innerHTML = 'Start trimming';
+//         await ffmpeg.exec(['-i', name, '-ss', '0', '-to', '1', 'output.mp4']);
+//         message.innerHTML = 'Complete trimming';
+//         const data = await ffmpeg.readFile('output.mp4');
+
+//         const video = document.getElementById('output-video');
+//         video.src = URL.createObjectURL(new Blob([data.buffer], { type: 'video/mp4' }));
+//       }
+//       const elm = document.getElementById('uploader');
+//       elm.addEventListener('change', trim);
 
 // Add input functionality
 const ins = document.querySelectorAll("input[id*='in']");
