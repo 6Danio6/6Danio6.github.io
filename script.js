@@ -1,3 +1,5 @@
+
+
 // Add input functionality
 const ins = document.querySelectorAll("input[id*='in']");
 const ins2 = document.querySelectorAll("input[id='randomi'],input[id='ratei']");
@@ -336,82 +338,84 @@ function saveaudio()
         pitch = pitchin.checked; 
         rate = ratei.value;
 
-        // Create a FormData object
-        audiofile = audioupload.files[0]
-        let formdata = new FormData();
-        formdata.append('file', audiofile);
+        // FFMPEG WASM TEST
 
-        // Create a POST XMLHttpRequest (audio file)
-        let xhr = new XMLHttpRequest();
-        let ratestring = rate.toString()
-        let pitchstring = Number(pitch).toString()
-        let url = `http://5.135.186.57:5000/upload?rate=${ratestring}&pitch=${pitchstring}`;
-        xhr.open('POST', url, true)
-        xhr.responseType = 'blob';
+        // // Create a FormData object
+        // audiofile = audioupload.files[0]
+        // let formdata = new FormData();
+        // formdata.append('file', audiofile);
 
-        // Create a GET XMLHttpRequest (stats)
-        let stats = new XMLHttpRequest();
-        stats.open("GET", "http://5.135.186.57:5000/stats", true)
+        // // Create a POST XMLHttpRequest (audio file)
+        // let xhr = new XMLHttpRequest();
+        // let ratestring = rate.toString()
+        // let pitchstring = Number(pitch).toString()
+        // let url = `http://x/upload?rate=${ratestring}&pitch=${pitchstring}`;
+        // xhr.open('POST', url, true)
+        // xhr.responseType = 'blob';
 
-        // xhr functions
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                log("log","Audio downloaded.")
-                console.log(xhr.response);
-                // console.log(xhr.responseURL);
-                // console.log(xhr.responseType);
-                let blob = xhr.response;
-                let link = document.createElement("a");
-                let filename;
-                if (pitch) {
-                    filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x_pitch.mp3`;
-                } else {
-                    filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x.mp3`;
-                }
-                link.href = window.URL.createObjectURL(blob);
-                link.download = filename
-                link.innerHTML = "Click to download"
-                main.appendChild(link);
-                link.click();
-                main.removeChild(link);
-                log("log","Audio saved.")
-            } else {
-                console.log(`Request failed: ${xhr.statusText}`);
-                throw new Error(`Request failed: ${xhr.statusText}`)
-            }
-        };
-        xhr.onerror = function() {
-            console.log("XMLHTTPRequest error occured.");
-            throw new Error("XMLHTTPRequest error occured.")
-        };
-        xhr.onprogress = function(event) {
-            console.log(`Received ${event.loaded}B of ${event.total}B`);
-            log("log",`Received ${event.loaded}B of ${event.total}B`)
-        };
+        // // Create a GET XMLHttpRequest (stats)
+        // let stats = new XMLHttpRequest();
+        // stats.open("GET", "http://x/stats", true)
 
-        // stats functions
-        stats.onload = function(){
-            if (stats.status === 200) {
-                let data = JSON.parse(stats.responseText);
+        // // xhr functions
+        // xhr.onload = function() {
+        //     if (xhr.status === 200) {
+        //         log("log","Audio downloaded.")
+        //         console.log(xhr.response);
+        //         // console.log(xhr.responseURL);
+        //         // console.log(xhr.responseType);
+        //         let blob = xhr.response;
+        //         let link = document.createElement("a");
+        //         let filename;
+        //         if (pitch) {
+        //             filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x_pitch.mp3`;
+        //         } else {
+        //             filename = audioupload.files[0].name.slice(0,-4) + `_${ratei.value}x.mp3`;
+        //         }
+        //         link.href = window.URL.createObjectURL(blob);
+        //         link.download = filename
+        //         link.innerHTML = "Click to download"
+        //         main.appendChild(link);
+        //         link.click();
+        //         main.removeChild(link);
+        //         log("log","Audio saved.")
+        //     } else {
+        //         console.log(`Request failed: ${xhr.statusText}`);
+        //         throw new Error(`Request failed: ${xhr.statusText}`)
+        //     }
+        // };
+        // xhr.onerror = function() {
+        //     console.log("XMLHTTPRequest error occured.");
+        //     throw new Error("XMLHTTPRequest error occured.")
+        // };
+        // xhr.onprogress = function(event) {
+        //     console.log(`Received ${event.loaded}B of ${event.total}B`);
+        //     log("log",`Received ${event.loaded}B of ${event.total}B`)
+        // };
 
-                let ratio = 1.5;
-                let estimated_size = Math.round(audiofile.size / (ratei.value * ratio));
-                log("log", `Estimated size: ${estimated_size}B`)
+        // // stats functions
+        // stats.onload = function(){
+        //     if (stats.status === 200) {
+        //         let data = JSON.parse(stats.responseText);
 
-                estimated_time = estimated_size / data["average_bps"];
-                estimated_time = estimated_time.toFixed(2);
-                log("log", `Estimated wait time: ${estimated_time}s`)
-            } else {
-                throw new Error(`Request failed: ${stats.statusText}`)
-            }
-        }
-        stats.onerror = function() {
-            throw new Error("XMLHTTPRequest error occured.")
-        };
+        //         let ratio = 1.5;
+        //         let estimated_size = Math.round(audiofile.size / (ratei.value * ratio));
+        //         log("log", `Estimated size: ${estimated_size}B`)
 
-        // Send the requests
-        xhr.send(formdata);
-        stats.send();
+        //         estimated_time = estimated_size / data["average_bps"];
+        //         estimated_time = estimated_time.toFixed(2);
+        //         log("log", `Estimated wait time: ${estimated_time}s`)
+        //     } else {
+        //         throw new Error(`Request failed: ${stats.statusText}`)
+        //     }
+        // }
+        // stats.onerror = function() {
+        //     throw new Error("XMLHTTPRequest error occured.")
+        // };
+
+        // // Send the requests
+        // xhr.send(formdata);
+        // stats.send();
     } catch(err) { log("error", "Error saving audio file: ", err.message) }
 }
 
